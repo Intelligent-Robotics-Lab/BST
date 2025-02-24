@@ -12,7 +12,7 @@ llm = ChatOpenAI(
     model="gpt-4o-mini", # replacement of 3.5-turbo
     temperature=0,
     max_retries=2,
-    api_key="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"
+    api_key="" # put API key between quotes
 )
 
 def start():
