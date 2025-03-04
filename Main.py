@@ -33,7 +33,7 @@ class DTTSession:
             model="gpt-4o-mini",
             temperature=0,
             max_retries=2,
-            api_key="YOUR_API_KEY"  # Hide or store safely
+            api_key="YOUR_API_KEY" # I've hidden our API key for safety
         )
 
     def _initialize_gpt4o(self):
@@ -53,13 +53,6 @@ class DTTSession:
         )
 
     def run_session(self):
-        """
-        Loop through 10 trials. For each trial:
-          1. Set LED color to indicate readiness
-          2. Listen & chunk input (or get a manual test phrase)
-          3. Evaluate input using evaluate_technician_action
-          4. Possibly store or display results
-        """
         for trial_num in range(1, 11):
             print(f"\n=== Starting Trial {trial_num} ===")
 
@@ -86,20 +79,12 @@ class DTTSession:
         self.finish_session()
 
     def finish_session(self):
-        """
-        Optionally do some wrap-up or final summary of results.
-        """
         # Example: print all results
         print("\n=== Session Finished. Trial Evaluations ===")
         for tnum, evaluation in self.trial_responses.items():
             print(f"Trial {tnum}: {evaluation}")
 
     def debug_get_manual_input(self, trial_num):
-        """
-        For manual testing, you might input from console or
-        hard-code some strings for each trial.
-        Real scenario: you'd use furhat.listen() or a chunking approach.
-        """
         # In a real scenario, you'd do something like:
         # response_text = self.furhat.listen()
         # Or a chunk-based approach with repeated calls to self.furhat.listen()
@@ -116,18 +101,11 @@ class DTTSession:
         return test_inputs.get(trial_num, "Default test input")
 
     def get_time(self):
-        """
-        Calculate elapsed time from the start of the session.
-        """
         elapsed_time = time.time() - self.start_time
         minutes, seconds = divmod(int(elapsed_time), 60)
         return f"{minutes:02}:{seconds:02}"
 
     def set_led(self, color):
-        """
-        LED feedback - example values only, adjust as needed.
-        """
-        # Adjust color mapping as you like:
         if color == "red":
             self.furhat.set_led(red=200, green=50, blue=50)
         elif color == "blue":
@@ -141,9 +119,6 @@ class DTTSession:
         # time.sleep(1)
 
     def evaluate_technician_action(self, technician_action, previous_state, llm):
-        """
-        Evaluate the technician action using the LLM, returning JSON data.
-        """
         prompted_time = self.get_time()
 
         prompt = f"""
@@ -222,10 +197,6 @@ def main():
     # Create a session
     session = DTTSession()
 
-    # Optionally do some quick debug tests *before* or *after* session
-    # session.debug_tests()
-
-    # Run the full 10-trial session
     session.run_session()
 
 
