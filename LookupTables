@@ -1,0 +1,157 @@
+
+# States of the program
+states = {
+    "WELCOME": "The BT is welcomed and explained the procedure of the study.",
+
+    "[Zero-Second Prompting] Manding/Motivation": "A manding/motivation trial where the BT asks the child what they want to work for.",
+    "[Zero-Second Prompting] Imitation": "A high-probability imitation trial where the BT touches their head asks the child to mimic.",
+    "[Zero-Second Prompting] Reception": "A receptive instruction trial where the BT asks the child to wave.",
+    "[Zero-Second Prompting] Tact/Labeling": "A tact/labelling trial where the BT holds a toy car in their hand and asks the child what it is",
+    "[Zero-Second Prompting] Emotions": "An emotion trial where the BT displays a happy face and asks the child what emotion the BT is displaying ",
+
+    "[Two-Second Prompting] Manding/Motivation": "A manding/motivation verbal where the BT asks the child what they want to work for.",
+    "[Two-Second Prompting] Imitation": "A high-probability imitation trial where the BT puts their arms up and asks the child to mimic.",
+    "[Two-Second Prompting] Reception": "A receptive instruction trial where the BT asks the child to clap their hands.",
+    "[Two-Second Prompting] Tact/Labeling": "A tact/labelling trial where the BT holds a ball in their hand and asks the child what it is",
+    "[Two-Second Prompting] Emotions": "An emotion trial where the BT displays a sad face and asks the child what emotion the BT is displaying.",
+
+    "[Independent Responding] Manding/Motivation": "A manding/motivation trial where the BT asks the child what they want to work for.",
+    "[Independent Responding] Imitation": "A high-probability imitation trial where the BT nods their head asks the child to mimic.",
+    "[Independent Responding] Reception": "A receptive instruction trial where the BT asks the child to touch their nose.",
+    "[Independent Responding] Tact/Labeling": "A tact/labelling trial where the BT holds a book in their hand and asks the child what it is.",
+    "[Independent Responding] Emotions": "A emotion trial where the BT displays an angry face asks the child what emotion the BT is displaying.",
+
+    "RESULTS": "",
+}
+
+
+# Ideal phrasing the BT should use for each trial's SD.
+sds = {
+    "[Zero-Second Prompting] Manding/Motivation": "What do you want to work for?",
+    "[Zero-Second Prompting] Imitation": "Do this",
+    "[Zero-Second Prompting] Reception": "Wave",
+    "[Zero-Second Prompting] Tact/Labeling": "What is this?",
+    "[Zero-Second Prompting] Emotions": "How do I feel?",
+
+    "[Two-Second Prompting] Manding/Motivation": "What do you want to work for?",
+    "[Two-Second Prompting] Imitation": "Do this",
+    "[Two-Second Prompting] Reception": "Clap hands",
+    "[Two-Second Prompting] Tact/Labeling": "What is this?",
+    "[Two-Second Prompting] Emotions": "How do I feel?",
+
+    "[Independent Responding] Manding/Motivation": "What do you want to work for?",
+    "[Independent Responding] Imitation": "Do this",
+    "[Independent Responding] Reception": "Touch nose",
+    "[Independent Responding] Tact/Labeling": "What is this?",
+    "[Independent Responding] Emotions": "How do I feel?",
+}
+
+# Ideal phrasing of prompts if the child does not respond
+prompts = {
+    "[Zero-Second Prompting] Manding/Motivation": "",
+    "[Zero-Second Prompting] Imitation": "Touch your head, like this.",
+    "[Zero-Second Prompting] Reception": "Can you wave? Like this.",
+    "[Zero-Second Prompting] Tact/Labeling": "It's a c... c...",
+    "[Zero-Second Prompting] Emotions": "Do I look happy or sad?",
+
+    "[Two-Second Prompting] Manding/Motivation": "",
+    "[Two-Second Prompting] Imitation": "Raise your arms, like this.",
+    "[Two-Second Prompting] Reception": "Can you clap your hands? Like this.",
+    "[Two-Second Prompting] Tact/Labeling": "It's a b... b...",
+    "[Two-Second Prompting] Emotions": "Do I look happy or sad?",
+
+    "[Independent Responding] Manding/Motivation": "",
+    "[Independent Responding] Imitation": "Nod your head, like this.",
+    "[Independent Responding] Reception": "Can you touch your nose? Like this",
+    "[Independent Responding] Tact/Labeling": "It's a b... b...",
+    "[Independent Responding] Emotions": "Do I look happy or angry?"
+}
+
+
+# Ideal phrasing of reinforcements that BT should provide
+reinforcements = {
+    "[Zero-Second Prompting] Manding/Motivation": "You want to work for stickers? Got it!",
+    "[Zero-Second Prompting] Imitation": "Good job!",
+    "[Zero-Second Prompting] Reception": "Good job!",
+    "[Zero-Second Prompting] Tact/Labeling": "Good job!",
+    "[Zero-Second Prompting] Emotions": "Not quite. This is a happy face.", # is this correct?
+
+    "[Two-Second Prompting] Manding/Motivation": "",
+    "[Two-Second Prompting] Imitation": "",
+    "[Two-Second Prompting] Reception": "",
+    "[Two-Second Prompting] Tact/Labeling": "",
+    "[Two-Second Prompting] Emotions": "",
+
+    "[Independent Responding] Manding/Motivation": "",
+    "[Independent Responding] Imitation": "",
+    "[Independent Responding] Reception": "",
+    "[Independent Responding] Tact/Labeling": "",
+    "[Independent Responding] Emotions": ""
+}
+
+# Ideal phrasing of reinforcements that BT should provide
+error_corrections = {
+    "[Zero-Second Prompting] Manding/Motivation": "Not quite.",
+    "[Zero-Second Prompting] Imitation": "Not quite.",
+    "[Zero-Second Prompting] Reception": "Not quite.",
+    "[Zero-Second Prompting] Tact/Labeling": "Not quite.",
+    "[Zero-Second Prompting] Emotions": "Not quite.",
+
+    "[Two-Second Prompting] Manding/Motivation": "Not quite.",
+    "[Two-Second Prompting] Imitation": "Not quite.",
+    "[Two-Second Prompting] Reception": "Not quite.",
+    "[Two-Second Prompting] Tact/Labeling": "Not quite.",
+    "[Two-Second Prompting] Emotions": "Not quite.",
+
+    "[Independent Responding] Manding/Motivation": "Not quite.",
+    "[Independent Responding] Imitation": "Not quite.",
+    "[Independent Responding] Reception": "Not quite.",
+    "[Independent Responding] Tact/Labeling": "Not quite.",
+    "[Independent Responding] Emotions": "Not quite."
+}
+
+
+# Deterministic responses the child will provide
+child_correct_responses = {
+    "[Zero-Second Prompting] Manding/Motivation": "Stickers!",
+    "[Zero-Second Prompting] Imitation": "[child touches head, no verbals]",
+    "[Zero-Second Prompting] Reception": "[child waves, no verbals]",
+    "[Zero-Second Prompting] Tact/Labeling": "A car!",
+    "[Zero-Second Prompting] Emotions": "Sad",
+
+    "[Two-Second Prompting] Manding/Motivation": "",
+    "[Two-Second Prompting] Imitation": "",
+    "[Two-Second Prompting] Reception": "",
+    "[Two-Second Prompting] Tact/Labeling": "",
+    "[Two-Second Prompting] Emotions": "",
+
+    "[Independent Responding] Manding/Motivation": "",
+    "[Independent Responding] Imitation": "",
+    "[Independent Responding] Reception": "",
+    "[Independent Responding] Tact/Labeling": "",
+    "[Independent Responding] Emotions": ""
+}
+
+
+# Common errors that the BT might make. Ask Jessica for these.
+child_incorrect_responses = {
+    "[Zero-Second Prompting] Manding/Motivation": "",
+    "[Zero-Second Prompting] Imitation": "",
+    "[Zero-Second Prompting] Reception": "",
+    "[Zero-Second Prompting] Tact/Labeling": "",
+    "[Zero-Second Prompting] Emotions": "",
+
+    "[Two-Second Prompting] Manding/Motivation": "",
+    "[Two-Second Prompting] Imitation": "",
+    "[Two-Second Prompting] Reception": "",
+    "[Two-Second Prompting] Tact/Labeling": "",
+    "[Two-Second Prompting] Emotions": "",
+
+    "[Independent Responding] Manding/Motivation": "",
+    "[Independent Responding] Imitation": "",
+    "[Independent Responding] Reception": "",
+    "[Independent Responding] Tact/Labeling": "",
+    "[Independent Responding] Emotions": ""
+}
+
+
