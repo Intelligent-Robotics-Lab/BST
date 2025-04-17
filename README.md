@@ -6,9 +6,10 @@ This Behavior Skills Training (BST) program uses the Furhat and NAO social robot
 ## Phases of BST
 
 - **Introduction**: Furhat briefly explains the ABA DTT protocol to the interventionist.
-- **Demonstration**: Furhat demonstrates ideal usage with NAO.
+- **Demonstration**: Furhat demonstrates ideal DTT performance with NAO.
 - **Rehearsal**: The interventionist performs ABA DTT on NAO while Furhat evaluates.
 - **Feedback**: Furhat relays personalized feedback to the interventionist and generates a viewable PDF of the interventionist's performance.
+
 
 ## Files
 
