@@ -3,28 +3,29 @@ import json
 import time
 import random
 import requests
+import LookupTables
+
 from langchain_openai import ChatOpenAI
 from furhat_remote_api import FurhatRemoteAPI
-import LookupTables
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 class DTTSession:
     def __init__(self):
         # Connect Furhat
         self.furhat = FurhatRemoteAPI("141.210.88.11")
-        self.furhat.say(text="Connected successfully")
+        #self.furhat.say(text="Connected successfully")
         self.furhat.attend(user="CLOSEST")
-        naoBehavior(".lastUploadedChoregrapheBehavior/Connected")
+        #naoBehavior(".lastUploadedChoregrapheBehavior/Connected")
 
         time.sleep(2)
 
         # Load lookup tables
-        self.instructions = LookupTables.sds  # formerly self.prompts
-        self.states = LookupTables.states
-        self.child_responses = LookupTables.child_correct_responses
-        self.reinforcements = LookupTables.reinforcements
+        self.trials = LookupTables.trials
 
         self.start_time = time.time()
         self.DTT_state = "WELCOME"
@@ -39,28 +40,22 @@ class DTTSession:
             model="gpt-4o",
             temperature=0,
             max_retries=2,
-            api_key="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"
+            api_key="" # Put your OpenAI API key here
         )
 
     def run_session(self):
-        """
-        Loop through each trial. For each trial:
-          1. Ensure LED is red by default (BT should not speak).
-          2. Provide the BT with an instruction, then set LED to blue before listening.
-          3. After listening, revert LED to red.
-          4. Repeat for the reinforcement.
-          5. Evaluate input using evaluate_technician_action.
-          6. Store the trial results.
-        """
-        for trial_num in range(1, 2):
-            print(f"\n=== Trial {trial_num} ===")
+
+        for trial_iteration in range(1, 2):
+            print(f"\n=== Trial {trial_iteration} ===")
 
             self.set_led("red")
 
-            if (trial_num == 1):
+            if (trial_iteration == 1):
                 self.furhat.say(text = "Please begin now!")
             else:
                 self.furhat.say(text="Please provide your next instruction.")
+
+            # # # # # # INSTRUCTION (DISCRIMINATIVE STIMULUS) # # # # # #
 
             time.sleep(2.5)
             self.set_led("blue")
@@ -75,61 +70,167 @@ class DTTSession:
             else:
                 bt_instruction = str(instruction_result)
 
-            num = random.randrange(1, 3, 1)  # random num (1 or 2)
+            prompt = f"""
+            You are an ABA DTT expert. A BT is being trained to perform DTT with a child.
+            Here is what the BT has said to the child as an instruction (Discriminitive Stimulus, or SD): {bt_instruction} 
+            Here is a dictionary of all of the possible and ideal phrasing for the instructions: {self.trials}
+            Your job is to scan the dictionary of possible trials and tell me which number trial the instruction BEST corresponds to.
+            It's OK if the phrasing is slightly off. You should be very lenient, also referring to the "explanation" to double check what the BT may have meant.
+            It is also OK if the child's name is used (Emily).
+            However, if the instruction absolutely does not match any of the trials, please return "0".
+            You should ONLY reply with the one number of the corresponding trial. Do not add any other words or numbers.
+            For example, your output may be "5" or "12" or "0" etc. Do not provide any extra text.
+            """
+
+            trial_number = "N/A"
+
+            try:
+                response = self.gpt4o.invoke([{"role": "system", "content": prompt}])
+                trial_number = response.content if hasattr(response, "content") else str(response)
+
+                print("LLM Output: ", trial_number)
+            except Exception as e:
+                print("Error while processing interventionist's instruction in the LLM:", e)
+
+
+            # # # # # # CHILD REACTION # # # # # #
+
+            reaction = random.randrange(1, 3, 1)  # randomly determine if child responds correctly or incorrectly (50%/50%)
+            # Which trial has the BT initiated with their instruction? Refer to "trials" lookup table
+            
             child_response = "N/A"
 
-            if trial_num == 1:
-                naoBehavior(".lastUploadedChoregrapheBehavior/behavior_1")
-                child_response = "I want stickers!" 
-            elif trial_num == 2:
-                if num == 1:
-                    naoBehavior(".lastUploadedChoregrapheBehavior/TouchHead")
-                    child_response = "[touches head]"
-                elif num == 2:
-                    naoBehavior(".lastUploadedChoregrapheBehavior/DontTouchHead")
-                    child_response = "[doesn't touch head]"
-            elif trial_num == 3:
-                if num == 1:
-                    naoBehavior(".lastUploadedChoregrapheBehavior/ClapHAnds")
-                    child_response = "[claps hands]"
-                elif num == 2:
-                    naoBehavior(".lastUploadedChoregrapheBehavior/DontClapHands")
-                    child_response = "[doesn't clap hands]"
+            match trial_number:
+                case "1":
+                    naoBehavior(".lastUploadedChoregrapheBehavior/behavior_1")
+                    child_response = "child excitedly says: 'I want stickers!'"
+                case "2":
+                    if reaction == 1:
+                        naoBehavior("bststudy/Touch Head")
+                        child_response = "child successfully touches their head"
+                    elif reaction == 2:
+                        naoBehavior("bststudy/Clap Prompt")
+                        child_response = "child does NOT touch their head"
+                case "3":
+                    if reaction == 1:
+                        child_response = "child successfully waves"
+                        naoBehavior("bststudy/Wave Prompt")
+                    elif reaction == 2:
+                        child_response = "child does NOT wave"
+                        naoBehavior("bststudy/Clap Prompt")
+                case "4":
+                    if reaction == 1:
+                        naoBehavior("bststudy/Car")
+                        child_response = "child successfully guesses the object is a toy car"
+                    elif reaction == 2:
+                        child_response = "child does NOT guess the object is a toy car"
+                        naoBehavior("bststudy/Ball")
+                case "5":
+                    if reaction == 1:
+                        child_response = "child successfully guesses the happy face"
+                        naoBehavior("bststudy/Happy")
+                    elif reaction == 2:
+                        child_response = "child does NOT guess the happy face"
+                        naoBehavior("bststudy/Angry")
+                case "6":
+                    if reaction == 1:
+                        naoBehavior("bststudy/Arms Up Prompt")
+                        child_response = "child successfully puts their arms up"
+                    elif reaction == 2:
+                        naoBehavior("bststudy/Clap Prompt")
+                        child_response = "child does NOT put their arms up"
+                case "7":
+                    if reaction == 1:
+                        naoBehavior("bststudy/Clap Prompt")
+                        child_response = "child successfully claps their hands"
+                    elif reaction == 2:
+                        naoBehavior("bststudy/Touch Nose Prompt")
+                        child_response = "child does NOT clap their hands"
+                case "8":
+                    if reaction == 1:
+                        child_response = "child successfully guesses the object is a toy ball"
+                        naoBehavior("bststudy/Ball")
+                    elif reaction == 2:
+                        child_response = "child does NOT guess the object is a toy ball"
+                        naoBehavior("bststudy/Book")
+                case "9":
+                    if reaction == 1:
+                        child_response = "child successfully guesses the sad face"
+                        naoBehavior("bststudy/Sad")
+                    elif reaction == 2:
+                        child_response = "child does NOT guess the sad face"
+                        naoBehavior("bststudy/Happy")
+                case "10":
+                    if reaction == 1:
+                        child_response = "child successfully nods their head"
+                        naoBehavior("bststudy/Nod Yes")
+                    elif reaction == 2:
+                        child_response = "child does NOT nod their head"
+                        naoBehavior("bststudy/Clap Hands")
+                case "11":
+                    if reaction == 1:
+                        naoBehavior("bststudy/Touch Nose Prompt")
+                        child_response = "child successfully touches their nose"
+                    elif reaction == 2:
+                        naoBehavior("bststudy/Arms Up Prompt")
+                        child_response = "child does NOT touch their nose"
+                case "12":
+                    if reaction == 1:
+                        child_response = "child successfully guesses the object is a book"
+                        naoBehavior("bststudy/Book")
+                    elif reaction == 2:
+                        child_response = "child does NOT guess the object is a book"
+                        naoBehavior("bststudy/Ball")
+                case "13":
+                    if reaction == 1:
+                        child_response = "child successfully guesses the angry face"
+                        naoBehavior("bststudy/Angry")
+                    elif reaction == 2:
+                        child_response = "child does NOT guess the angry face"   
+                        naoBehavior("bststudy/Happy")
+                case "0":
+                    # NOT A VALID STATE PROVIDED BY BT
+                    child_response = "N/A"
+                case _:
+                    # NOT A VALID OUTPUT FROM LLM
+                    child_response = "N/A 2"        
+
+
+            # # # # # # CONSEQUENCE STRATEGY # # # # # #
 
             time.sleep(2.5)
             self.set_led("blue")
-            reinforcement_result = self.furhat.listen()
+            cs_result = self.furhat.listen()
             time.sleep(1)
             self.set_led("red")
 
-            if hasattr(reinforcement_result, "message"):
-                bt_reinforcement = reinforcement_result.message
-            elif isinstance(reinforcement_result, dict):
-                bt_reinforcement = reinforcement_result.get("message", "")
+            if hasattr(cs_result, "message"):
+                bt_cs = cs_result.message
+            elif isinstance(cs_result, dict):
+                bt_cs = cs_result.get("message", "")
             else:
-                bt_reinforcement = str(reinforcement_result)
+                bt_cs = str(cs_result)
 
-            # Evaluate technician action (processing phase, LED remains red)
+            # Evaluate technician action
             result = self.evaluate_technician_action(
+                trial_number,
                 bt_instruction,
-                bt_reinforcement,
+                bt_cs,
                 child_response,
-                self.DTT_state,
                 self.gpt4o
             )
 
-            # Store the evaluation result for later reporting
+            # Store the evaluation result for PDF at the end
             self.evaluation_results.append(result)
 
             # Update the session state if we have a new state
-            if "State" in result:
-                self.DTT_state = result["State"]
-
+            if "Trial Type" in result:
+                self.DTT_state = result["Trial Type"]
+                
         self.finish_session()
 
     def finish_session(self):
         print("\n=== Session Finished ===")
-        # Generate PDF report based on evaluation results
         self.generate_pdf_report()
 
     def get_time(self):
@@ -147,42 +248,46 @@ class DTTSession:
         else:
             self.furhat.set_led(red=0, green=0, blue=0)
 
-    def evaluate_technician_action(self, bt_instruction, bt_reinforcement, child_response, previous_state, llm):
+    def evaluate_technician_action(self, trial_number, bt_instruction, bt_cs, child_response, llm):
         prompted_time = self.get_time()
 
         prompt = f"""
         You are an expert in evaluating Applied Behavior Analysis (ABA) Discrete Trial Training (DTT) for Behavior Technicians.
 
-        Each trial for this study is briefly explained in the {self.states} dictionary.
-        There are three categories of trials: zero-second prompting, two-second prompting, and independent responding.
-        Each category has five types of trials: Manding/motivation, imitation, reception, tact/labeling, and emotions.
-        Each action and state with the same name align.
+        A dictionary containing the type of trial, explanation, and the BT's ideal instruction/reinforcement/error corrections are listed in the following "trials" dictionary: {self.trials}
+        The five types of trials we use are: Manding/motivation, imitation, reception, tact/labeling, and emotions.
 
-        Each trial has an ideal phrasing the BT should use, outlined in {self.instructions} for instructions and {self.reinforcements} for reinforcements.
-        However, it is OK if the BT phrasing is slightly off of the actions dictionary.
+        As you know, the BT begins by reciting an instruction, also known as a Discriminative Stimulus (or SD).
+        The child then responds correctly or incorrectly.
+        Then, the BT follows up with either a reinforcement (if the child responded correctly) OR an error-correction (if the child responded incorrectly).
+        This is called the BT's consequence strategy (or CS).
+
+        You are to refer to the provided "trials" dictionary for determining how well the BT's instructions and consequence strategies align with the ideal verbals.
+        However, it is OK if the BT phrasing, grammar, and word choice is off, as long as it generally retains its meaning. 
         It is also OK if the BT uses the child's name (the child's name will always be Emily).
 
-        The previous DTT state was: {previous_state}.
-        The BT just said the following instruction: {bt_instruction}.
-        The BT just said the following consequence strategy (CS): {bt_reinforcement}.
+        The BT said the following instruction: {bt_instruction}.
         The child's response to the BT's instruction is: {child_response}
+        The BT's consequence strategy (CS) is: {bt_cs}.
         The current time is {prompted_time}.
+        The trial number is: {trial_number}
+        You can find the trial type from the "type" element of the "trials" dictionary.
 
-        1) First, determine the **correct DTT state** based on this action by referring to {self.states}.
+        1) Provide the trial type
         2) Provide the BT's instruction.
-        3) Then, evaluate if the BT's given instruction is **correct** for that state by referring to {self.instructions}.
-        4) If incorrect, explain the mistake and what should have been done instead. If correct, do not print this field.
+        3) Then, evaluate if the BT's given instruction is **correct** for that state by referring to the available instructions.
+        4) If incorrect, explain the mistake and what should have been done instead. If correct, print N/A.
         5) Provide the child's response.
         6) Provide the BT's consequence strategy (CS).
         7) Determine if the BT's CS is an error-correction, prompt, or reinforcement.
-        8) Then, evaluate if the BT's given CS is **correct** for the child's response to the instruction by referring to {self.child_responses} and {self.reinforcements}.
-        9) If incorrect, explain the mistake and what should have been done instead. If correct, do not print this field.
+        8) Then, evaluate if the BT's given CS is **correct** given the correct response type.
+        9) If incorrect, explain the mistake and what should have been done instead. If correct, print N/A.
         10) Provide the prompted time.
         
         Respond ONLY in valid JSON format (no extra text). Output should strictly follow this format:
         
         {{
-            "State": "<updated_state>",
+            "Trial Type": "<trial type>",
             "Received Instruction:" : "<what the BT said>",
             "Instruction Evaluation": "<correct/incorrect>",
             "Instruction Feedback": "<detailed explanation>",
@@ -214,7 +319,7 @@ class DTTSession:
             print("JSON Decode Error:", e)
             print("Raw Response:", response_text)
             result_json = {
-                "State": previous_state,
+                "State": "error",
                 "BT Evaluation": "error",
                 "Feedback": f"Error in processing response. Raw output: {response_text}",
                 "Time": prompted_time
@@ -222,7 +327,7 @@ class DTTSession:
         except Exception as e:
             print("Error during LLM processing:", e)
             result_json = {
-                "State": previous_state,
+                "State": "error",
                 "BT Evaluation": "error",
                 "Feedback": "Unexpected error occurred.",
                 "Time": prompted_time
@@ -235,14 +340,17 @@ class DTTSession:
         Converts the evaluation results into a table and exports it to a PDF.
         Each row corresponds to one JSON evaluation result.
         Each column represents one key-value pair from the JSON (one line).
+        Text in each cell is wrapped using Paragraph objects.
         """
-        from reportlab.lib.pagesizes import letter, landscape
-        from reportlab.lib.units import inch
 
-        # Define the expected columns in order; if some keys are missing in a row, we'll leave them blank.
+        # Create a paragraph style that we will use for each cell
+        styles = getSampleStyleSheet()
+        normalStyle = styles['BodyText']
+        normalStyle.fontSize = 8
+
         expected_columns = [
-            "State",
-            "Received Instruction:",
+            "Trial Type",
+            "Received Instruction",
             "Instruction Evaluation",
             "Instruction Feedback",
             "Child Response",
@@ -254,25 +362,30 @@ class DTTSession:
         ]
         
         # Create the table data (first row as header)
-        table_data = [expected_columns]
+        # Wrap header texts in Paragraph objects as well.
+        header = [Paragraph(col, normalStyle) for col in expected_columns]
+        table_data = [header]
+        
         for result in self.evaluation_results:
-            # Create a row for each evaluation, using empty strings for missing keys
-            row = [result.get(col, "") for col in expected_columns]
+            row = []
+            for col in expected_columns:
+                cell_text = str(result.get(col, ""))
+                p = Paragraph(cell_text, normalStyle)
+                row.append(p)
             table_data.append(row)
         
-        # Define the PDF file name and document in landscape orientation
         pdf_file = "Evaluation_Report.pdf"
-        doc = SimpleDocTemplate(pdf_file, pagesize=landscape(letter),
-                                leftMargin=0.5*inch, rightMargin=0.5*inch,
-                                topMargin=0.5*inch, bottomMargin=0.5*inch)
+        doc = SimpleDocTemplate(
+            pdf_file, 
+            pagesize=landscape(letter),
+            leftMargin=0.5 * inch, rightMargin=0.5 * inch,
+            topMargin=0.5 * inch, bottomMargin=0.5 * inch
+        )
         
-        # Calculate the available width for the table
         available_width = doc.width
-        # Divide the available width equally among all columns
         num_cols = len(expected_columns)
         col_widths = [available_width / num_cols] * num_cols
         
-        # Create a table with the computed column widths
         table = Table(table_data, colWidths=col_widths)
         
         # Add style to the table
@@ -281,13 +394,12 @@ class DTTSession:
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 8),  # Reduce font size to help fit data
+            ('FONTSIZE', (0, 0), (-1, -1), 8),  
             ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ])
         table.setStyle(style)
         
-        # Build the PDF
         elements = [table]
         doc.build(elements)
         print(f"PDF Report generated: {pdf_file}")
@@ -296,6 +408,7 @@ class DTTSession:
 def main():
     # Create session
     session = DTTSession()
+
     # Run session
     session.run_session()
 
