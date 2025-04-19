@@ -14,6 +14,18 @@ from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
+introduction = '''
+
+Hello! Welcome to behavior technician training. I'm Furhat, and I'll be your training partner today. 
+
+We're going to practice Discrete Trial Training, or DTT, together. I'll play the role of the supervisor, and your goal is to teach Emily the tasks in front of you!
+
+During our session, I'll be listening closely to your instructions, watching your movements, and evaluating how you are interacting with Emily. Remember to speak clearly, provide positive reinforcement, and follow the DTT protocol step-by-step.
+
+Let me demonstrate.
+
+'''
+
 class DTTSession:
     def __init__(self):
         # Connect Furhat
@@ -33,17 +45,23 @@ class DTTSession:
         # To collect evaluation results from each trial
         self.evaluation_results = []
 
-        self.gpt4o = self._initialize_gpt4o()
+        self.gpt41 = self._initialize_gpt41()
 
-    def _initialize_gpt4o(self):
+    def _initialize_gpt41(self):
         return ChatOpenAI(
-            model="gpt-4o",
+            model="gpt-4.1",
             temperature=0,
             max_retries=2,
-            api_key="" # Put your OpenAI API key here
+            api_key="", # Put your API key here
         )
+    
+    def introduction(self):
+        self.furhat.say(text=introduction)
+        time.sleep(34)
 
     def run_session(self):
+
+        # self.introduction()
 
         for trial_iteration in range(1, 2):
             print(f"\n=== Trial {trial_iteration} ===")
@@ -57,7 +75,7 @@ class DTTSession:
 
             # # # # # # INSTRUCTION (DISCRIMINATIVE STIMULUS) # # # # # #
 
-            time.sleep(2.5)
+            time.sleep(2)
             self.set_led("blue")
             instruction_result = self.furhat.listen()
             time.sleep(1)
@@ -71,7 +89,7 @@ class DTTSession:
                 bt_instruction = str(instruction_result)
 
             prompt = f"""
-            You are an ABA DTT expert. A BT is being trained to perform DTT with a child.
+            You are an ABA DTT expert. A behavior technician is being trained to perform DTT with a child.
             Here is what the BT has said to the child as an instruction (Discriminitive Stimulus, or SD): {bt_instruction} 
             Here is a dictionary of all of the possible and ideal phrasing for the instructions: {self.trials}
             Your job is to scan the dictionary of possible trials and tell me which number trial the instruction BEST corresponds to.
@@ -85,7 +103,7 @@ class DTTSession:
             trial_number = "N/A"
 
             try:
-                response = self.gpt4o.invoke([{"role": "system", "content": prompt}])
+                response = self.gpt41.invoke([{"role": "system", "content": prompt}])
                 trial_number = response.content if hasattr(response, "content") else str(response)
 
                 print("LLM Output: ", trial_number)
@@ -217,7 +235,7 @@ class DTTSession:
                 bt_instruction,
                 bt_cs,
                 child_response,
-                self.gpt4o
+                self.gpt41
             )
 
             # Store the evaluation result for PDF at the end
@@ -288,7 +306,7 @@ class DTTSession:
         
         {{
             "Trial Type": "<trial type>",
-            "Received Instruction:" : "<what the BT said>",
+            "Received Instruction" : "<what the BT said>",
             "Instruction Evaluation": "<correct/incorrect>",
             "Instruction Feedback": "<detailed explanation>",
             "Child Response": "<child's response>",
