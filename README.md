@@ -15,7 +15,7 @@ This Behavior Skills Training (BST) program uses the Furhat and NAO social robot
 
 - **Main.py**: Core program logic.
 - **Verbals.py**: Dictionaries that store ideal phrasings of instructions, reinforcements, prompts, and error corrections. The LLM compares the interventionists' semantics to the ideal phrasings in this file to determine if they match or are synonymous.
-- **NonVerbals.py**: Algorithms that check for limb locations and facial expressions, as needed in certain trials.
+- **Vision.py**: Algorithms that check for limb locations and facial expressions, as needed in certain trials.
 
   
 ## Prerequisites
