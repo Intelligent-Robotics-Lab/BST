@@ -13,7 +13,7 @@ This Behavior Skills Training (BST) program uses the Furhat and NAO social robot
 
 ## Files
 
-- **Main.py**: Core program logic.
+- **Main.py**: Core program logic responsible for creating and running sessions and trials.
 - **LookupTables.py**: Dictionaries that store ideal phrasings of instructions, reinforcements, prompts, and error corrections. The LLM compares the interventionists' semantics to the ideal phrasings in this file to determine if they match or are synonymous.
 - **Vision.py**: Algorithms that check for limb locations and facial expressions, as needed in certain trials.
 
@@ -24,7 +24,7 @@ This Behavior Skills Training (BST) program uses the Furhat and NAO social robot
 - **NAO social robot** 
 - **Python 3.9+** 
   - **Flask** (to connect to NAO)
-  - **OpenCV**
+  - **OpenCV 2** (for tracking limb movements)
   - **MediaPipe**
   - **DeepFace**
 - **OpenAI API key** (to power the LLM evaluations)
