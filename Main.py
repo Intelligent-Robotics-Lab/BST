@@ -21,6 +21,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 ''' DTT session class. Instantiated for every new session. It handles:
 - Initializing Furhat, NAO, and the LLM
 - Running each trial
+    - Capturing interventionist's instruction and consequence strategy
+    - LLM call 1: determining which trial the session is in, given the interventionist's instruction
+    - NAO response to the instruction
+    - LLM call 2: testing the accuracy of the interventionist's responses/gestures
+    - PDF generation
 '''
 
 class DTTSession:
