@@ -1,3 +1,15 @@
+'''
+Each trial here has the following attributes:
+- The trial's type: manding/motivation, imitation, reception, tact/labeling, or emotions.
+- A simple explanation of the trial's purpose, which is helpful for the LLM
+- The ideal instruction phrasing
+- The ideal reinforcement phrasing
+- The ideal error-correction phrasing
+
+Trials can be added here anytime. Be sure to also add a corresponding case to the case/switch in the Main.py file.
+Ideal prompt phrasing should also be added, whenever that is incorporated.
+'''
+
 trials = {
     1: {
         "type": "Manding/Motivation",
