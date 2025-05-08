@@ -9,7 +9,7 @@ trials = {
     2: {
         "type": "Imitation",
         "explanation": "A high-probability imitation trial where the BT touches their head asks the child to mimic.",
-        "ideal instruction": "Can you touch your head?",
+        "ideal instruction": "Do this [touches head]",
         "ideal reinforcement": "Excellent imitation!",
         "ideal error correction": "No, that isn't touching your head"
     },
@@ -37,7 +37,7 @@ trials = {
     6: {
         "type": "Imitation",
         "explanation": "A high-probability imitation trial where the BT puts their arms up and asks the child to mimic.",
-        "ideal instruction": "Can you put your arms up like this?",
+        "ideal instruction": "Do this [puts their arms up]",
         "ideal reinforcement": "Excellent imitation!",
         "ideal error correction": "No, that's not putting your arms up"
     },
@@ -65,7 +65,7 @@ trials = {
     10: {
         "type": "Imitation",
         "explanation": "A high-probability imitation trial where the BT nods their head asks the child to mimic.",
-        "ideal instruction": "Can you nod your head like this?",
+        "ideal instruction": "Do this [nods their head]",
         "ideal reinforcement": "Excellent imitation!",
         "ideal error correction": "No, that isn't nodding your head."
     },
